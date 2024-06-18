@@ -55,7 +55,7 @@ export class Plugin extends BrokerPlugin {
 
       this._setAccessTokenLifecycleHandler(connectionConfig);
     } catch (err) {
-      this.logger.err(
+      this.logger.error(
         { err },
         `Error in ${this.pluginName}-${this.pluginCode} startup.`,
       );

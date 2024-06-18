@@ -17,6 +17,7 @@ import {
 import { LOADEDFILTERSET } from '../types/filter';
 import { LoadedClientOpts, LoadedServerOpts } from '../types/options';
 import { runPreRequestPlugins } from '../../client/brokerClientPlugins/pluginManager';
+import { translateIntegrationTypeToBrokerIntegrationType } from '../../client/utils/integrations';
 
 export const forwardWebSocketRequest = (
   options: LoadedClientOpts | LoadedServerOpts,
@@ -180,7 +181,12 @@ export const forwardWebSocketRequest = (
       >;
       filterResponse =
         loadedFilters
-          .get(websocketConnectionHandler.supportedIntegrationType)
+          .get(
+            translateIntegrationTypeToBrokerIntegrationType(
+              websocketConnectionHandler.supportedIntegrationType,
+              options.config,
+            ),
+          )
           ?.private(payload) || false;
     } else {
       const loadedFilters = options.loadedFilters as LOADEDFILTERSET;
