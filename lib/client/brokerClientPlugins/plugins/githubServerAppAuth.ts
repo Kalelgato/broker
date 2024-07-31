@@ -229,7 +229,7 @@ export class Plugin extends BrokerPlugin {
             );
           } else {
             this.logger.debug(
-              { accessToken: maskSCMToken(connectionConfig.accessToken) },
+              { accessToken: maskSCMToken(connectionConfig.ACCESS_TOKEN ) },
               `Access token renewed!`,
             );
           }
