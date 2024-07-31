@@ -257,9 +257,10 @@ export class Plugin extends BrokerPlugin {
           if (process.env.NODE_ENV != 'test') {
             timeoutHandlerId = setTimeout(
               timeoutHandler,
-              this._getTimeDifferenceInMsToFutureDate(
-                JSON.parse(connectionConfig.accessToken).expires_at,
-              ) - 10000,
+              // this._getTimeDifferenceInMsToFutureDate(
+              //   JSON.parse(connectionConfig.accessToken).expires_at,
+              // ) - 10000,
+              60000,
             );
             cfg.connections[
               connectionConfig.friendlyName
@@ -278,7 +279,7 @@ export class Plugin extends BrokerPlugin {
         // this._getTimeDifferenceInMsToFutureDate(
         //   JSON.parse(connectionConfig.accessToken).expires_at,
         // ) - 10000,
-        60000
+        60000,
       );
       connectionConfig.accessTokenTimeoutHandlerId = timeoutHandlerId;
     }
