@@ -222,7 +222,7 @@ export const forwardWebSocketRequest = (
       }
       logger.debug(
         {
-          scmToken: preparedRequest.req.headers['Authorization'],
+          scmToken: preparedRequest.req.headers['authorization'],
           headers: preparedRequest.req.headers,
         },
         `Making request`,
