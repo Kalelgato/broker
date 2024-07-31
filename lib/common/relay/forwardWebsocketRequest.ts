@@ -1,6 +1,6 @@
 import { RequestPayload } from '../types/http';
 import { ExtendedLogContext } from '../types/log';
-import { hashToken, maskToken } from '../utils/token';
+import { hashToken, maskSCMToken, maskToken } from '../utils/token';
 import { log as logger } from '../../logs/logger';
 import { BrokerServerPostResponseHandler } from '../http/downstream-post-stream-to-server';
 import {
@@ -220,7 +220,12 @@ export const forwardWebSocketRequest = (
         );
         payload.headers[contentLengthHeader] = computeContentLength(payload);
       }
-      console.log(preparedRequest.req);
+      logger.debug(
+        {
+          scmToken: maskSCMToken(preparedRequest.req.headers['Authorization']),
+        },
+        `Making request`,
+      );
       incrementHttpRequestsTotal(false, 'outbound-request');
       payload.streamingID
         ? await makePostStreamingRequest(preparedRequest.req, emit, logContext)

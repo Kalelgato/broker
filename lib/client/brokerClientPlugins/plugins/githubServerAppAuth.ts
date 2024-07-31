@@ -248,19 +248,17 @@ export class Plugin extends BrokerPlugin {
           this.logger.debug(
             { plugin: this.pluginCode },
             `Refreshed access token expires at ${
-              // JSON.parse(
-              //   cfg.connections[connectionConfig.friendlyName].accessToken,
-              // ).expires_at
-              60000
+              JSON.parse(
+                cfg.connections[connectionConfig.friendlyName].accessToken,
+              ).expires_at
             }`,
           );
           if (process.env.NODE_ENV != 'test') {
             timeoutHandlerId = setTimeout(
               timeoutHandler,
-              // this._getTimeDifferenceInMsToFutureDate(
-              //   JSON.parse(connectionConfig.accessToken).expires_at,
-              // ) - 10000,
-              60000,
+              this._getTimeDifferenceInMsToFutureDate(
+                JSON.parse(connectionConfig.accessToken).expires_at,
+              ) - 10000,
             );
             cfg.connections[
               connectionConfig.friendlyName
@@ -276,10 +274,9 @@ export class Plugin extends BrokerPlugin {
       };
       timeoutHandlerId = setTimeout(
         timeoutHandler,
-        // this._getTimeDifferenceInMsToFutureDate(
-        //   JSON.parse(connectionConfig.accessToken).expires_at,
-        // ) - 10000,
-        60000,
+        this._getTimeDifferenceInMsToFutureDate(
+          JSON.parse(connectionConfig.accessToken).expires_at,
+        ) - 10000,
       );
       connectionConfig.accessTokenTimeoutHandlerId = timeoutHandlerId;
     }
