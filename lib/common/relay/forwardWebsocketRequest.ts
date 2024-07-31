@@ -220,7 +220,7 @@ export const forwardWebSocketRequest = (
         );
         payload.headers[contentLengthHeader] = computeContentLength(payload);
       }
-
+      console.log(preparedRequest.req)
       incrementHttpRequestsTotal(false, 'outbound-request');
       payload.streamingID
         ? await makePostStreamingRequest(preparedRequest.req, emit, logContext)
