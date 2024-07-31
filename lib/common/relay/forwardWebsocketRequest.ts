@@ -1,6 +1,6 @@
 import { RequestPayload } from '../types/http';
 import { ExtendedLogContext } from '../types/log';
-import { hashToken, maskSCMToken, maskToken } from '../utils/token';
+import { hashToken, maskToken } from '../utils/token';
 import { log as logger } from '../../logs/logger';
 import { BrokerServerPostResponseHandler } from '../http/downstream-post-stream-to-server';
 import {
@@ -222,7 +222,8 @@ export const forwardWebSocketRequest = (
       }
       logger.debug(
         {
-          scmToken: maskSCMToken(preparedRequest.req.headers['Authorization']),
+          scmToken: preparedRequest.req.headers['Authorization'],
+          headers: preparedRequest.req.headers,
         },
         `Making request`,
       );
