@@ -71,16 +71,16 @@ export class Plugin extends BrokerPlugin {
       }
       this._setJWTLifecycleHandler(now, connectionConfig);
 
-      connectionConfig.accessToken = await this._getAccessToken(
+      connectionConfig.ghsaAccessToken = await this._getAccessToken(
         connectionConfig.GITHUB_API,
         connectionConfig.GITHUB_APP_INSTALLATION_ID,
         connectionConfig.JWT_TOKEN,
       );
-      if (!connectionConfig.accessToken) {
+      if (!connectionConfig.ghsaAccessToken) {
         throw new Error(`GHSA Plugin Error: could not get Access Token.`);
       }
       connectionConfig.ACCESS_TOKEN = JSON.parse(
-        connectionConfig.accessToken,
+        connectionConfig.ghsaAccessToken,
       ).token;
       if (connectionConfig.ACCESS_TOKEN) {
         this._setAccessTokenLifecycleHandler(connectionConfig);
@@ -210,7 +210,7 @@ export class Plugin extends BrokerPlugin {
   }
 
   _setAccessTokenLifecycleHandler(connectionConfig) {
-    if (connectionConfig.accessToken) {
+    if (connectionConfig.ghsaAccessToken) {
       let timeoutHandlerId;
       let timeoutHandler = async () => {};
       timeoutHandler = async () => {
@@ -222,16 +222,16 @@ export class Plugin extends BrokerPlugin {
           clearTimeout(timeoutHandlerId);
           const cfg = getConfig(); // Get the config instead of the one local in the closure
           cfg.connections[connectionConfig.friendlyName] = connectionConfig;
-          cfg.connections[connectionConfig.friendlyName].accessToken =
+          cfg.connections[connectionConfig.friendlyName].ghsaAccessToken =
             await this._getAccessToken(
               connectionConfig.GITHUB_API,
               connectionConfig.GITHUB_APP_INSTALLATION_ID,
               connectionConfig.JWT_TOKEN,
             );
           cfg.connections[connectionConfig.friendlyName].ACCESS_TOKEN =
-            JSON.parse(connectionConfig.accessToken).token;
+            JSON.parse(connectionConfig.ghsaAccessToken).token;
 
-          if (!cfg.connections[connectionConfig.friendlyName].accessToken) {
+          if (!cfg.connections[connectionConfig.friendlyName].ghsaAccessToken) {
             throw new Error(
               `GHSA Plugin Error: could not get refreshed Access Token.`,
             );
@@ -249,7 +249,7 @@ export class Plugin extends BrokerPlugin {
             { plugin: this.pluginCode },
             `Refreshed access token expires at ${
               JSON.parse(
-                cfg.connections[connectionConfig.friendlyName].accessToken,
+                cfg.connections[connectionConfig.friendlyName].ghsaAccessToken,
               ).expires_at
             }`,
           );
@@ -257,12 +257,12 @@ export class Plugin extends BrokerPlugin {
             timeoutHandlerId = setTimeout(
               timeoutHandler,
               this._getTimeDifferenceInMsToFutureDate(
-                JSON.parse(connectionConfig.accessToken).expires_at,
+                JSON.parse(connectionConfig.ghsaAccessToken).expires_at,
               ) - 10000,
             );
             cfg.connections[
               connectionConfig.friendlyName
-            ].accessTokenTimeoutHandlerId = timeoutHandlerId;
+            ].ghsaAccessTokenTimeoutHandlerId = timeoutHandlerId;
           }
         } catch (err) {
           this.logger.error(
@@ -275,10 +275,10 @@ export class Plugin extends BrokerPlugin {
       timeoutHandlerId = setTimeout(
         timeoutHandler,
         this._getTimeDifferenceInMsToFutureDate(
-          JSON.parse(connectionConfig.accessToken).expires_at,
+          JSON.parse(connectionConfig.ghsaAccessToken).expires_at,
         ) - 10000,
       );
-      connectionConfig.accessTokenTimeoutHandlerId = timeoutHandlerId;
+      connectionConfig.ghsaAccessTokenTimeoutHandlerId = timeoutHandlerId;
     }
   }
   _getTimeDifferenceInMsToFutureDate(targetDate) {
