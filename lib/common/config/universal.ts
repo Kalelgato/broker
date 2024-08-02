@@ -65,7 +65,7 @@ export const getConfigForIdentifier = (identifier: string, config) => {
   }
   const configToOverload = {
     ...(connectionType ? getConfigForType(connectionType) : {}),
-    ...(connectionKey ? config.connections[connectionKey] : {}),
+    ...(connectionKey ? getConfig().connections[connectionKey] : {}),
   };
   const configOverloaded = expandPlaceholderValuesInFlatList(
     configToOverload,

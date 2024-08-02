@@ -160,7 +160,7 @@ export const forwardWebSocketRequest = (
       emit = legacyOverrideEmit;
     }
 
-    const simplifiedContext = logContext;
+    const simplifiedContext = structuredClone(logContext);
     delete simplifiedContext.requestHeaders;
     logger.info(
       simplifiedContext,
@@ -213,10 +213,13 @@ export const forwardWebSocketRequest = (
         websocketConnectionHandler?.socketType,
       );
       if (options.config.universalBrokerEnabled) {
-        preparedRequest.req = await runPreRequestPlugins(
-          options,
-          connectionIdentifier,
-          preparedRequest.req,
+        preparedRequest.req = Object.assign(
+          {},
+          await runPreRequestPlugins(
+            options,
+            connectionIdentifier,
+            preparedRequest.req,
+          ),
         );
         payload.headers[contentLengthHeader] = computeContentLength(payload);
       }

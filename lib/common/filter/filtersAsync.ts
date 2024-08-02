@@ -21,6 +21,7 @@ import {
   getConfigForType,
   overloadConfigWithConnectionSpecificConfig,
 } from '../config/universal';
+import { maskToken } from '../utils/token';
 
 export const loadAllFilters = (
   filters: Map<string, FiltersType> | FiltersType,
@@ -135,9 +136,17 @@ export const loadFilters: LOADEDFILTER = (
         configFromApp?.universalBrokerEnabled &&
         req.connectionIdentifier
       ) {
+        logger.debug(
+          { identifier: maskToken(req.connectionIdentifier) },
+          'Overloading app config with conn specific config.',
+        );
         localConfig = overloadConfigWithConnectionSpecificConfig(
           req.connectionIdentifier,
           localConfig,
+        );
+        logger.debug(
+          { accessToken: localConfig.ACCESS_TOKEN },
+          'access token in localconfig',
         );
       }
 

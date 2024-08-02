@@ -229,7 +229,9 @@ export class Plugin extends BrokerPlugin {
               connectionConfig.JWT_TOKEN,
             );
           cfg.connections[connectionConfig.friendlyName].ACCESS_TOKEN =
-            JSON.parse(connectionConfig.ghsaAccessToken).token;
+            JSON.parse(
+              cfg.connections[connectionConfig.friendlyName].ghsaAccessToken,
+            ).token;
 
           if (!cfg.connections[connectionConfig.friendlyName].ghsaAccessToken) {
             throw new Error(
@@ -238,7 +240,7 @@ export class Plugin extends BrokerPlugin {
           } else {
             this.logger.debug(
               {
-                accessToken: maskSCMToken(
+                ghsaAccessToken: maskSCMToken(
                   cfg.connections[connectionConfig.friendlyName].ACCESS_TOKEN,
                 ),
               },

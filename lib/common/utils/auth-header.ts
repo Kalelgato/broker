@@ -21,6 +21,8 @@ export default (
   }
 
   if (scheme === 'bearer') {
+    console.log(token);
+    console.log(config);
     return `Bearer ${replace(token, config)}`;
   }
 
