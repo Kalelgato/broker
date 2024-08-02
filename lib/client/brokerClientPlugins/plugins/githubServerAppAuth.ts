@@ -79,10 +79,10 @@ export class Plugin extends BrokerPlugin {
       if (!connectionConfig.ghsaAccessToken) {
         throw new Error(`GHSA Plugin Error: could not get Access Token.`);
       }
-      connectionConfig.ACCESS_TOKEN = JSON.parse(
+      connectionConfig.GHSA_ACCESS_TOKEN = JSON.parse(
         connectionConfig.ghsaAccessToken,
       ).token;
-      if (connectionConfig.ACCESS_TOKEN) {
+      if (connectionConfig.GHSA_ACCESS_TOKEN) {
         this._setAccessTokenLifecycleHandler(connectionConfig);
       } else {
         throw new Error(`GHSA Plugin Error: could not extract access token.`);
@@ -228,7 +228,7 @@ export class Plugin extends BrokerPlugin {
               connectionConfig.GITHUB_APP_INSTALLATION_ID,
               connectionConfig.JWT_TOKEN,
             );
-          cfg.connections[connectionConfig.friendlyName].ACCESS_TOKEN =
+          cfg.connections[connectionConfig.friendlyName].GHSA_ACCESS_TOKEN =
             JSON.parse(
               cfg.connections[connectionConfig.friendlyName].ghsaAccessToken,
             ).token;
@@ -241,7 +241,8 @@ export class Plugin extends BrokerPlugin {
             this.logger.debug(
               {
                 ghsaAccessToken: maskSCMToken(
-                  cfg.connections[connectionConfig.friendlyName].ACCESS_TOKEN,
+                  cfg.connections[connectionConfig.friendlyName]
+                    .GHSA_ACCESS_TOKEN,
                 ),
               },
               `Access token renewed!`,
