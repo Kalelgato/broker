@@ -131,6 +131,7 @@ export const loadFilters: LOADEDFILTER = (
     const regexp = pathRegexp(entryPath, keys);
 
     return (req) => {
+      let localConfigAtRequestTime
       if (
         configFromApp?.brokerType === 'client' &&
         configFromApp?.universalBrokerEnabled &&
@@ -140,14 +141,11 @@ export const loadFilters: LOADEDFILTER = (
           { identifier: maskToken(req.connectionIdentifier) },
           'Overloading app config with conn specific config.',
         );
-        localConfig = overloadConfigWithConnectionSpecificConfig(
+        localConfigAtRequestTime = overloadConfigWithConnectionSpecificConfig(
           req.connectionIdentifier,
           localConfig,
         );
-        logger.debug(
-          { accessToken: localConfig.ACCESS_TOKEN },
-          'access token in localconfig',
-        );
+
       }
 
       // check the request method
@@ -266,7 +264,7 @@ export const loadFilters: LOADEDFILTER = (
         }
       }
 
-      const origin = replace(baseOrigin, localConfig);
+      const origin = replace(baseOrigin, localConfigAtRequestTime);
       logger.debug(
         { path: entryPath, origin, url, querystring },
         'rule matched',
@@ -276,7 +274,7 @@ export const loadFilters: LOADEDFILTER = (
 
       return {
         url: origin + url + querystring,
-        auth: entry.auth && authHeader(entry.auth, localConfig),
+        auth: entry.auth && authHeader(entry.auth, localConfigAtRequestTime),
         stream,
       };
     };
