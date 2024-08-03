@@ -130,14 +130,18 @@ export const loadFilters: LOADEDFILTER = (
     const regexp = pathRegexp(entryPath, keys);
 
     return (req) => {
+      let localConfigForRequest;
       if (
         configFromApp?.brokerType === 'client' &&
         configFromApp?.universalBrokerEnabled &&
         req.connectionIdentifier
       ) {
-        localConfig = overloadConfigWithConnectionSpecificConfig(
-          req.connectionIdentifier,
-          localConfig,
+        localConfigForRequest = Object.assign(
+          {},
+          overloadConfigWithConnectionSpecificConfig(
+            req.connectionIdentifier,
+            localConfig,
+          ),
         );
       }
 
@@ -257,7 +261,7 @@ export const loadFilters: LOADEDFILTER = (
         }
       }
 
-      const origin = replace(baseOrigin, localConfig);
+      const origin = replace(baseOrigin, localConfigForRequest);
       logger.debug(
         { path: entryPath, origin, url, querystring },
         'rule matched',
@@ -267,7 +271,7 @@ export const loadFilters: LOADEDFILTER = (
 
       return {
         url: origin + url + querystring,
-        auth: entry.auth && authHeader(entry.auth, localConfig),
+        auth: entry.auth && authHeader(entry.auth, localConfigForRequest),
         stream,
       };
     };

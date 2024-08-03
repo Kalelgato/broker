@@ -215,7 +215,7 @@ export class Plugin extends BrokerPlugin {
   }
 
   _setAccessTokenLifecycleHandler(connectionConfig) {
-    if (connectionConfig.ghsaAccessToken) {
+    if (getPluginsConfig()[connectionConfig.friendlyName].ghsaAccessToken) {
       let timeoutHandlerId;
       let timeoutHandler = async () => {};
       timeoutHandler = async () => {
@@ -231,7 +231,7 @@ export class Plugin extends BrokerPlugin {
             await this._getAccessToken(
               connectionConfig.GITHUB_API,
               connectionConfig.GITHUB_APP_INSTALLATION_ID,
-              connectionConfig.JWT_TOKEN,
+              getPluginsConfig()[connectionConfig.friendlyName].JWT_TOKEN,
             );
           getPluginsConfig()[connectionConfig.friendlyName].GHSA_ACCESS_TOKEN =
             JSON.parse(
