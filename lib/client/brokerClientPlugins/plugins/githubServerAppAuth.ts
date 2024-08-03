@@ -8,6 +8,7 @@ import { makeRequestToDownstream } from '../../../common/http/request';
 import { maskSCMToken } from '../../../common/utils/token';
 // import { getConfig } from '../../../common/config/config';
 import { getPluginsConfig } from '../../../common/config/pluginsConfig';
+import { replace } from '../../../common/utils/replace-vars';
 
 export class Plugin extends BrokerPlugin {
   // Plugin Code and Name must be unique across all plugins.
@@ -306,15 +307,30 @@ export class Plugin extends BrokerPlugin {
   }
 
   // Hook to run pre requests operations - Optional. Uncomment to enable
-  // async preRequest(
-  //   connectionConfiguration: Record<string, any>,
-  //   postFilterPreparedRequest: PostFilterPreparedRequest,
-  //   pluginsConfig: Record<string,any>
-  // ) {
-  //   this.logger.debug(
-  //     { plugin: this.pluginName, connection: connectionConfiguration },
-  //     'Running prerequest plugin',
-  //   );
-  //   return postFilterPreparedRequest;
-  // }
+  async preRequest(
+    connectionConfiguration: Record<string, any>,
+    postFilterPreparedRequest: PostFilterPreparedRequest,
+  ) {
+    this.logger.debug(
+      { plugin: this.pluginName, connection: connectionConfiguration },
+      'Running prerequest plugin',
+    );
+
+    const regexPattern = /\$[A-Za-z0-9_%]+/g;
+    const matches = postFilterPreparedRequest.url.match(regexPattern);
+    if (matches) {
+      for (const pathPart of matches) {
+        const source = replace(
+          `${pathPart.replace('$', '${')}}`,
+          connectionConfiguration,
+        ); // replace the variables
+        postFilterPreparedRequest.url = postFilterPreparedRequest.url.replace(
+          pathPart,
+          source,
+        );
+      }
+    }
+
+    return postFilterPreparedRequest;
+  }
 }
