@@ -15,5 +15,5 @@
     "noUnusedLocals": true,
     "moduleResolution":"node"
   },
-  "include": ["./lib/**/*", "./cli/**/*"],
+  "include": ["./lib/**/*", "./cli/**/*","./defaultFilters/**/*.json","./config.default.json"],
 }

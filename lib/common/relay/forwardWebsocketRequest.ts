@@ -221,15 +221,40 @@ export const forwardWebSocketRequest = (
         payload.headers[contentLengthHeader] = computeContentLength(payload);
       }
 
-      incrementHttpRequestsTotal(false, 'outbound-request');
-      payload.streamingID
-        ? await makePostStreamingRequest(preparedRequest.req, emit, logContext)
-        : await makeLegacyRequest(
-            preparedRequest.req,
-            emit,
-            logContext,
-            options,
-          );
+      if (options.config.embeddedWorkloadModeEnabled) {
+        let jsonString = preparedRequest.req.body;
+        if (typeof preparedRequest.req.body !== 'string') {
+          // Only here if there was no change in preparedRequest and getting UInt8Array.
+          jsonString = new TextDecoder().decode(preparedRequest.req.body);
+        }
+
+        logger.debug({ payload: jsonString }, 'Running workload');
+        let jsonObject = JSON.parse(jsonString);
+
+        const result = await (
+          await import(options.config.embeddedWorkloadPath)
+        ).handler(jsonObject);
+        emit({
+          status: 200,
+          body: {
+            message: JSON.stringify(result),
+          },
+        });
+      } else {
+        incrementHttpRequestsTotal(false, 'outbound-request');
+        payload.streamingID
+          ? await makePostStreamingRequest(
+              preparedRequest.req,
+              emit,
+              logContext,
+            )
+          : await makeLegacyRequest(
+              preparedRequest.req,
+              emit,
+              logContext,
+              options,
+            );
+      }
     }
   };
 };
