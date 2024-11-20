@@ -66,7 +66,6 @@ export const createWebSocketConnectionPairs = async (
   } else {
     logger.info(
       {
-        connection: socketIdentifyingMetadata.friendlyName,
         serverId: serverId,
       },
       'received server id',
@@ -138,6 +137,7 @@ export const createWebSocket = (
     socketSettings['transport'] = {
       extraHeaders: {
         Authorization: clientOpts.accessToken?.authHeader,
+        'enable-authorization': 'true', // TO DO: Delete after test
       },
     };
   }
@@ -171,8 +171,8 @@ export const createWebSocket = (
         clientOpts.config.brokerClientConfiguration.common.oauth!.clientSecret,
       );
 
-      // websocket.transport.extraHeaders['Authorization'] =
-      //   clientOpts.accessToken!.authHeader;
+      websocket.transport.extraHeaders['Authorization'] =
+        clientOpts.accessToken!.authHeader;
       // websocket.end();
       // websocket.open();
       timeoutHandlerId = setTimeout(
@@ -232,6 +232,27 @@ export const createWebSocket = (
   websocket.on('open', () =>
     openHandler(websocket, localClientOps, identifyingMetadata),
   );
+
+  websocket.on('service', (msg) => {
+    logger.info({ msg }, 'service message received');
+  });
+  websocket.on('outgoing::open', function () {
+    type OnErrorHandler = (type: string, code: number) => void;
+
+    const originalErrorHandler: OnErrorHandler =
+      websocket.socket.transport.onError;
+
+    websocket.socket.transport.onError = (...args: [string, number]) => {
+      const [type, code] = args; // Destructure for clarity
+      if (code === 401) {
+        logger.error({ type, code }, `Connection denied: unauthorized.`);
+      } else {
+        logger.error({ type, code }, `Transport error during polling.`);
+      }
+
+      originalErrorHandler.apply(websocket.socket.transport, args);
+    };
+  });
 
   websocket.on('close', () =>
     closeHandler(localClientOps, identifyingMetadata),

@@ -9,10 +9,9 @@ import { bootstrap } from 'global-agent';
 import https from 'https';
 import http from 'http';
 import { getConfig } from '../../common/config/config';
+import { getClientOpts } from '../../client/config/configHelpers';
 
 const BROKER_CONTENT_TYPE = 'application/vnd.broker.stream+octet-stream';
-
-const client = getConfig().brokerServerUrl?.startsWith('https') ? https : http;
 
 if (process.env.HTTP_PROXY || process.env.http_proxy) {
   process.env.HTTP_PROXY = process.env.HTTP_PROXY || process.env.http_proxy;
@@ -40,6 +39,8 @@ class BrokerServerPostResponseHandler {
   #role;
   #requestId;
   #brokerSrvPostRequestHandler;
+  #client;
+  #postResponseBackendSchemeAndHostname;
 
   constructor(logContext, config, brokerToken, serverId, requestId, role) {
     this.#logContext = logContext;
@@ -59,23 +60,28 @@ class BrokerServerPostResponseHandler {
         'received error sending data to broker server post request buffer',
       ),
     );
+    this.#postResponseBackendSchemeAndHostname = this.#config.brokerServerUrl;
+    if (getClientOpts().accessToken && !this.#config.useLocalBackend) {
+      this.#postResponseBackendSchemeAndHostname = `${
+        this.#config.apiBaseUrl
+      }/hidden/broker`;
+    }
+    console.log(this.#postResponseBackendSchemeAndHostname);
+
+    this.#client = this.#postResponseBackendSchemeAndHostname.startsWith(
+      'https',
+    )
+      ? https
+      : http;
   }
 
   async #initHttpClientRequest() {
     try {
       const url = new URL(
-        `${this.#config.brokerServerUrl}/response-data/${this.#brokerToken}/${
-          this.#streamingId
-        }`,
+        `${this.#postResponseBackendSchemeAndHostname}/response-data/${
+          this.#brokerToken
+        }/${this.#streamingId}`,
       );
-      if (this.#serverId) {
-        url.searchParams.append('server_id', this.#serverId);
-      }
-      if (this.#role) {
-        url.searchParams.append('connection_role', this.#role);
-      }
-      const brokerServerPostRequestUrl = url.toString();
-
       const options = {
         method: 'post',
         headers: {
@@ -94,8 +100,21 @@ class BrokerServerPostResponseHandler {
           ? parseInt(this.#config.brokerClientPostTimeout)
           : 1200000,
       };
+      if (getClientOpts().accessToken) {
+        options.headers['authorization'] =
+          getClientOpts().accessToken.authHeader;
+      }
 
-      this.#brokerSrvPostRequestHandler = client.request(
+      if (this.#serverId) {
+        url.searchParams.append('server_id', this.#serverId);
+      }
+      if (this.#role) {
+        url.searchParams.append('connection_role', this.#role);
+      }
+      const brokerServerPostRequestUrl = url.toString();
+      console.log(brokerServerPostRequestUrl);
+
+      this.#brokerSrvPostRequestHandler = this.#client.request(
         brokerServerPostRequestUrl,
         options,
       );
