@@ -96,11 +96,6 @@
       "validations": [
         {
           "url": "https://$ARTIFACTORY_URL/api/system/ping",
-          "auth": {
-            "type": "basic",
-            "username": "$ARTIFACTORY_USERNAME",
-            "password": "$ARTIFACTORY_PASSWORD"
-          }
         }
       ],
       "default": {
@@ -436,17 +431,11 @@
     "nexus": {
       "validations": [
         {
-          "url": "https://$BASE_NEXUS_URL/service/rest/v1/status/check/api/system/ping",
-          "auth": {
-            "type": "basic",
-            "username": "$NEXUS_USERNAME",
-            "password": "$NEXUS_PASSWORD"
-          }
+          "url": "https://$BASE_NEXUS_URL/service/rest/v1/status/check/api/system/ping"
         }
       ],
       "default": {
         "NEXUS_URL": "$BASE_NEXUS_URL/repository",
-        "BROKER_CLIENT_VALIDATION_URL": "$BASE_NEXUS_URL/service/rest/v1/status/check",
         "REMOVE_X_FORWARDED_HEADERS": "true"
       },
       "required": {
@@ -456,17 +445,11 @@
     "nexus2": {
       "validations": [
         {
-          "url": "https://$BASE_NEXUS2_URL/nexus/service/local/status",
-          "auth": {
-            "type": "basic",
-            "username": "$NEXUS2_USERNAME",
-            "password": "$NEXUS2_PASSWORD"
-          }
+          "url": "https://$BASE_NEXUS2_URL/nexus/service/local/status"
         }
       ],
       "default": {
-        "NEXUS_URL": "$BASE_NEXUS2_URL/nexus/content",
-        "BROKER_CLIENT_VALIDATION_URL": "$BASE_NEXUS2_URL/nexus/service/local/status"
+        "NEXUS_URL": "$BASE_NEXUS2_URL/nexus/content"
       },
       "required": {
         "BASE_NEXUS_URL": "https://<username>:<password>@<your.nexus.hostname>"
